@@ -1,3 +1,5 @@
+import datetime
+
 from typing import Annotated
 from typing_extensions import TypedDict
 from langgraph.graph import StateGraph, START, END
@@ -9,6 +11,11 @@ from tools import search_flights, search_hotels, calculate_budget
 from dotenv import load_dotenv
 
 load_dotenv()
+
+
+def log_to_file(content: str):
+    with open("chatbot_log.txt", "a", encoding="utf-8") as f:
+        f.write(f"{datetime.datetime.now()} - {content}\n")
 
 # 1. Đọc System Prompt
 with open("system_prompt.txt", "r", encoding="utf-8") as f:
@@ -36,9 +43,13 @@ def agent_node(state: AgentState):
     # === LOGGING ===
     if response.tool_calls:
         for tc in response.tool_calls:
-            print(f"Gọi tool: {tc['name']}({tc['args']})")
+            log = f"Gọi tool: {tc['name']}({tc['args']})"
+            print(log)
+            log_to_file(log )
     else:
-        print(f"Trả lời trực tiếp")
+        log = "Trả lời trực tiếp"
+        print(log)
+        log_to_file(log)
 
     return {"messages": [response]}
 
@@ -84,6 +95,10 @@ if __name__ == "__main__":
             final = AIMessage(content=final.content)
 
         messages.append(final)
+
+        log_to_file(f"User: {user_input}")
+        log_to_file(f"Assistant: {final.content}")
+        log_to_file("-" * 50)
 
 
         chat_history.append({
