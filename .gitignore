@@ -7,7 +7,6 @@ venv/
 .venv/
 
 .env
-.env.*
 *.env
 
 assignment.md
